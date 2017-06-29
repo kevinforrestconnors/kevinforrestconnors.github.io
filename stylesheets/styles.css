@@ -1,8 +1,10 @@
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Slabo 27px', serif;
   background-color: #fffffa; 
+  font-size: 100%; 
+  line-height:1.5;
+  font-family: 'Merriweather', Georgia, 'Times New Roman', Times, serif;
 }
 
 .text-it {
@@ -13,15 +15,6 @@ body {
   text-align: center
 }
 
-ul {
-  padding: 20px; 
-}
-
-p {
-  line-height: 28px;
-  text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2); 
-}
-
 header {
   padding: 10px;
   font-family: 'Lato', serif;
@@ -30,10 +23,8 @@ header {
   border-bottom: 1px dotted rgba(175, 175, 200, 0.3); 
 }
 
-header a {
-    /* the title bar on every page*/
-    color: black !important;
-    text-decoration: none !important; 
+p {
+  text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2); 
 }
 
 .s-top {
@@ -41,29 +32,12 @@ header a {
 }
 
 section.main-content {
-  display: block;
-  max-width: 800px;
+  max-width: 36em;
+  margin:auto;
+  padding:0 2em;
+  width: 90%; /* fallback if needed */
+  width: calc(100% - 3em);
   margin: 0 auto; 
-}
-
-.s-left {
-  float: left;
-  width: 100px;
-}
-
-.blog li, .links li {
-  list-style-type: none; 
-}
-
-.blog li:first-child, .links li:first-child {
-  font-size: 18px;
-  font-weight: bold; 
-}
-
-.s-right {
-  float: left;
-  width: calc(100% - 100px); /* 100px = .s-left's width */
-  padding: 20px; 
 }
 
 .s-bottom {
