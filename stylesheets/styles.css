@@ -67,7 +67,7 @@ section.main-content {
 }
 
 .s-bottom {
-  width: calc(100% - (2 * 100px));
+  width: calc(100% - 250px);
   max-width: 720px;
   height: 100px;
   margin: 0 auto;
