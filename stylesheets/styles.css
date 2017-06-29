@@ -11,9 +11,6 @@ body {
   font-style: italic;
 }
 
-.text-align-center {
-  text-align: center
-}
 
 header {
   padding: 10px;
@@ -27,17 +24,25 @@ p {
   text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2); 
 }
 
+h2 {
+  font-family: 'Lato', serif;
+}
+
 .s-top {
   width: 100%; 
 }
 
 section.main-content {
   max-width: 36em;
-  margin:auto;
-  padding:0 2em;
+  margin: 0 auto;
+  padding: 0 2em;
   width: 90%; /* fallback if needed */
   width: calc(100% - 3em);
   margin: 0 auto; 
+}
+
+section.main-content > div {
+  margin-bottom: 10px;
 }
 
 .s-bottom {
