@@ -49,7 +49,6 @@ section.main-content {
 .s-left {
   float: left;
   width: 100px;
-  margin: 0 10px; 
 }
 
 .blog li, .links li {
@@ -62,8 +61,8 @@ section.main-content {
 }
 
 .s-right {
-  width: 90%;
-  margin: 0 auto;
+  float: left;
+  width: calc(100% - 100px); /* 100px = .s-left's width */
   padding: 20px; 
 }
 
