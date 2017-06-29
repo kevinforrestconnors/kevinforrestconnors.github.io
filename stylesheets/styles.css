@@ -14,17 +14,30 @@ body {
 
 header {
   padding: 10px;
-  font-family: 'Lato', serif;
   font-weight: 100;
   text-align: center;
   border-bottom: 1px dotted rgba(175, 175, 200, 0.3); 
 }
 
 p {
-  text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2); 
+  margin: 0 0 1em 0;
+  padding: 0;
+  text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2);  
 }
 
+h1 {
+  margin: 0 0 0 0;
+  font-size: 2.747em;
+  font-family: 'Lato', serif;
+}
 h2 {
+  margin: 0 0 0 0;
+  font-size: 0.874em;
+  font-family: 'Lato', serif;
+}
+h3 {
+  margin: 0 0 5px 0;
+  font-size: 1.229em;
   font-family: 'Lato', serif;
 }
 
@@ -33,21 +46,30 @@ h2 {
 }
 
 section.main-content {
-  max-width: 36em;
-  margin: 0 auto;
-  padding: 0 2em;
-  width: 90%; /* fallback if needed */
-  width: calc(100% - 3em);
-  margin: 0 auto; 
+  max-width: 34em;
+  margin: 2em auto 0 auto;
+  padding: 0 1em;
+  font-size: 1.1em;
 }
 
 section.main-content > div {
-  margin-bottom: 10px;
+  margin-bottom: 30px;
+}
+
+#show-hide-coursework {
+  display: hidden;
+}
+
+#show-hide-coursework:checked ~ .coursework-list {
+  display: block;
+}
+
+.coursework-list {
+  display: none;
 }
 
 .s-bottom {
-  width: calc(100% - 250px);
-  max-width: 720px;
+  max-width: 30em;
   height: 100px;
   margin: 0 auto;
   border-top: 1px solid rgba(200, 200, 200, 0.5); 
