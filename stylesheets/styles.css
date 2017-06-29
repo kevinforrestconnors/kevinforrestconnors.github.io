@@ -1,0 +1,66 @@
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Slabo 27px', serif;
+  background-color: #fffffa; }
+
+ul {
+  padding: 20px; }
+
+p {
+  line-height: 28px;
+  text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2); }
+
+header {
+  padding: 10px;
+  font-family: 'Lato', serif;
+  font-weight: 100;
+  text-align: center;
+  border-bottom: 1px dotted rgba(175, 175, 200, 0.3); }
+  header a {
+    /* the title bar on every page*/
+    color: black !important;
+    text-decoration: none !important; }
+
+.s-top {
+  width: 100%; }
+
+section.main-content {
+  display: block;
+  max-width: 800px;
+  margin: 0 auto; }
+
+.s-left {
+  float: left;
+  width: 100px;
+  margin: 0 10px; }
+
+.blog li, .links li {
+  list-style-type: none; }
+.blog li:first-child, .links li:first-child {
+  font-size: 18px;
+  font-weight: bold; }
+
+.s-right {
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px; }
+
+.s-bottom {
+  width: calc(100% - (2 * 100px));
+  max-width: 720px;
+  height: 100px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(200, 200, 200, 0.5); }
+
+.social-media-links {
+  margin-right: 10px; }
+
+.spotify-playlist {
+  display: block;
+  list-style-type: none;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center; }
+
+/*# sourceMappingURL=styles.css.map */
