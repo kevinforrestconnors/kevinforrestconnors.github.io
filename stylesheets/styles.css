@@ -7,10 +7,21 @@ body {
   font-family: 'Merriweather', Georgia, 'Times New Roman', Times, serif;
 }
 
+ul {
+  margin: 0;
+}
+
 .text-it {
   font-style: italic;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
+.font-mono {
+  font-family: monospace;
+}
 
 header {
   padding: 10px;
@@ -19,7 +30,7 @@ header {
   border-bottom: 1px dotted rgba(175, 175, 200, 0.3); 
 }
 
-p {
+.p {
   margin: 0 0 1em 0;
   padding: 0;
   text-shadow: -1px 0 2px rgba(150, 150, 200, 0.2);  
@@ -40,6 +51,9 @@ h3 {
   font-size: 1.229em;
   font-family: 'Lato', serif;
 }
+h4 {
+  margin: 0 0 0 0;
+}
 
 .s-top {
   width: 100%; 
@@ -57,15 +71,161 @@ section.main-content > div {
 }
 
 #show-hide-coursework {
-  display: hidden;
-}
-
-#show-hide-coursework:checked ~ .coursework-list {
-  display: block;
+  display: none;
+  visibility: hidden;
 }
 
 .coursework-list {
   display: none;
+  visibility: hidden;
+}
+
+.show-coursework, .hide-coursework {
+  color: blue;
+}
+
+.show-coursework:hover, .hide-coursework:hover {
+  cursor: pointer;
+}
+
+#show-hide-coursework:checked ~ .coursework-list {
+  display: block;
+  visibility: visible;
+}
+
+.show-coursework {
+  display: block;
+  visibility: visible;  
+}
+
+#show-hide-coursework:checked ~ .show-coursework {
+  display: none;
+  visibility: hidden;
+}
+
+.hide-coursework {
+  display: none;
+  visibility: hidden;
+}
+
+#show-hide-coursework:checked ~ .hide-coursework {
+  display: block;
+  visibility: visible;
+}
+
+.coursework-list {
+  margin-top: 1em;
+}
+
+.coursework-list-year {
+  margin-top: 1em;
+}
+
+.coursework-list-year ul li {
+  list-style-type: none;
+}
+
+.coursework-semester-divline {
+  height: 1px;
+  border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+  margin: 5px 0;
+}
+
+.class {
+  display: none;
+  visibility: hidden;
+}
+.class:before {
+  font-family: monospace;
+}
+
+.coursework-filter-checkbox:checked + .coursework-filter {
+  border: 2px solid green;
+  color: green;
+}
+
+.coursework-filter {
+  border: 2px solid red;
+  border-radius: 5px;
+  padding: 2px 3px;
+  font-family: monospace;
+  color: red;
+}
+
+#filter-CSC {
+  display: none;
+  visibility: hidden;
+}
+#filter-CSC:checked ~ div ul li.class-CSC{
+  display: block;
+  visibility: visible;
+}
+
+#filter-LIN {
+  display: none;
+  visibility: hidden;
+}
+#filter-LIN:checked ~ div ul li.class-LIN{
+  display: block;
+  visibility: visible;
+}
+
+#filter-SPN {
+  display: none;
+  visibility: hidden;
+}
+#filter-SPN:checked ~ div ul li.class-SPN{
+  display: block;
+  visibility: visible;
+}
+
+#filter-OTHER {
+  display: none;
+  visibility: hidden;
+}
+#filter-OTHER:checked ~ div ul li.class-OTHER{
+  display: block;
+  visibility: visible;
+}
+
+.class-ALS:before {
+  content: "ALS ";
+}
+.class-ART:before {
+  content: "ART ";
+}
+.class-CSC:before {
+  content: "CSC ";
+}
+.class-ECN:before {
+  content: "ECN ";
+}
+.class-HUM:before {
+  content: "HUM ";
+}
+.class-LIN:before {
+  content: "LIN ";
+}
+.class-MAT:before {
+  content: "MAT ";
+}
+.class-MUS:before {
+  content: "MUS ";
+}
+.class-PHI:before {
+  content: "PHI ";
+}
+.class-PHY:before {
+  content: "PHY ";
+}
+.class-SOC:before {
+  content: "SOC ";
+}
+.class-SPN:before {
+  content: "SPN ";
+}
+.class-TUT:before {
+  content: "TUT ";
 }
 
 .s-bottom {
@@ -75,6 +235,3 @@ section.main-content > div {
   border-top: 1px solid rgba(200, 200, 200, 0.5); 
 }
 
-.social-media-links {
-  margin-right: 10px; 
-}

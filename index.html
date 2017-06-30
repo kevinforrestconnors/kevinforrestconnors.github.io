@@ -25,35 +25,130 @@
 
   <div class="section-2">
     <h3>contact me</h3>
-    <p>
+    <div class="p">
       <a href="mailto:kevinforrestconnors@gmail.com">kevinforrestconnors@gmail.com</a>
-    </p>
-    <p>
+    </div>
+    <div class="p">
       For confidential matters, you can use my <a href="public-key.html">PGP public key</a> to send me an encrypted email.  Big brother is watching!
-    </p>
+    </div>
   </div>
 
   <div class="section-3">
     <h3>academics</h3>
-    <p>
+    <div class="p">
       My interest in computers began at the age of five, playing <a href="https://en.wikipedia.org/wiki/Cro-Mag_Rally">Cro-Mag Rally</a> on my dad's Macintosh Performa.  At the age of 14, I started making algorithmic art in JavaScript.  Since then, I've dabbled in lots of different languages in every paradigm, and I really enjoy learning languages.
-    </p>
-    <p>
-      I also like learning <span class="text-it">about</span> languages.  My fourth semester in college I took Introduction to Linguistics and decided to minor in it.  In order to fulfill the elective requirements, I began taking advanced Spanish classes, culminating in 300 levels.  The combination of formal, mathematical language study (Computer Science), natural language study (Spanish), and the study of languages caused me to reconsider what a language <span class="text-it">is</span>.  Richard Montague once said, <span class="text-it">“I reject the contention that an important theoretical difference exists between formal and natural languages.”</span>  In other words, any natural language can, in theory, be described completely mathematically!
-    </p>
-    <p>
-      My coursework caused me to be interested bridging the conceptual gap between formal and natural languages.  This involves both improvements on programming languages and IDEs and also studying ways to improve natural language communication through technology.
-    </p>
-    <p>
-      <label for="show-hide-coursework">show coursework</label>
-      <input id="show-hide-coursework" type="checkbox">
-      <div class="coursework-list">
-        <ul>
-        <li>a</li>
-        <li>b</li>
-        </ul>
+    </div>
+    <div class="p">
+      I also like learning <span class="text-it">about</span> languages.  My fourth semester in college I took Intro to Linguistics and decided to minor in it.  In order to fulfill the elective requirements, I began taking advanced Spanish classes, culminating in 300 levels.  The combination of formal, mathematical language study (Computer Science), natural language study (Spanish), and the study of languages caused me to reconsider what a language <span class="text-it">is</span>.  Richard Montague once said, <span class="text-it">“I reject the contention that an important theoretical difference exists between formal and natural languages.”</span>  In other words, any natural language can, in theory, be described completely mathematically!
+    </div>
+    <div class="p">
+      My coursework caused me to be interested bridging the conceptual gap between formal and natural languages.  This involves both improvements on programming languages and IDEs and also thinking about ways to improve natural language communication through technology.
+    </div>
+    <div class="p">
+
+      <input id="show-hide-coursework" type="checkbox" role="button">
+      <label for="show-hide-coursework" class="show-coursework">click to show coursework ↓</label>
+      <label for="show-hide-coursework" class="hide-coursework">click to hide coursework ↑</label>
+
+      <div class="p coursework-list">
+
+        <span class="inline-block font-mono">Showing: </span>
+
+        <input id="filter-CSC" class="coursework-filter-checkbox"type="checkbox" checked="checked" role="button">
+        <label for="filter-CSC" class="coursework-filter">CSC</label>
+
+        <input id="filter-LIN" class="coursework-filter-checkbox"type="checkbox" checked="checked" role="button">
+        <label for="filter-LIN" class="coursework-filter">LIN</label>
+
+        <input id="filter-SPN" class="coursework-filter-checkbox"type="checkbox" checked="checked" role="button">
+        <label for="filter-SPN" class="coursework-filter">SPN</label>
+
+        <input id="filter-OTHER" class="coursework-filter-checkbox"type="checkbox" checked="checked" role="button">
+        <label for="filter-OTHER" class="coursework-filter">OTHER</label>
+
+        <span class="inline-block font-mono"> (click buttons to filter by class type)</span>
+
+        <div class="coursework-list-year">
+          <h4>First Year</h4>
+          <ul>
+            <li class="class class-TUT class-OTHER class-4c">History of Food in the United States</li>
+            <li class="class class-SOC class-OTHER class-4c">Intro to Sociology</li>
+            <li class="class class-CSC class-4c">Functional Problem Solving</li>
+
+            <div class="coursework-semester-divline"></div>
+
+            <li class="class class-ECN class-OTHER class-4c">Intro to Economics</li>
+            <li class="class class-MAT class-OTHER class-4c">Calculus II</li>
+            <li class="class class-CSC class-4c">Imperative Prob Solving &amp; Data Structs</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Banjo</li>
+          </ul>  
+        </div>
+        
+        <div class="coursework-list-year">     
+          <h4>Second Year</h4>
+          <ul>
+            <li class="class class-PHI class-OTHER class-4c">Intro to Philosophy</li>
+            <li class="class class-PHY class-OTHER class-4c">Bridges, Towers, &amp; Skyscrapers</li>
+            <li class="class class-SPN class-4c">Intermediate Spanish</li>
+            <li class="class class-HUM class-OTHER class-1c">Learning Leadership from Literature</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Banjo</li>
+
+            <div class="coursework-semester-divline"></div>
+
+            <li class="class class-LIN class-4c">Intro to General Linguistics</li>
+            <li class="class class-CSC class-4c">Discrete Structures</li>
+            <li class="class class-CSC class-2c">Software Dev Principles and Practices</li>
+            <li class="class class-CSC class-2c">Team Software Dev for Community Orgs.</li>
+            <li class="class class-SPN class-4c">Intro to Textual Analysis</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Banjo</li>
+          </ul>
+        </div>
+
+        <div class="coursework-list-year">
+          <h4>Summer 2016</h4>
+          <ul>
+            <li class="class class-CSC class-4c">MAP: Semi-automated Functional Programming</li>
+          </ul>
+        </div>
+
+        <div class="coursework-list-year">
+          <h4>Third Year</h4>
+          <ul>
+            <li class="class class-ALS class-OTHER class-4c">Hungarian Language &amp; Culture</li>
+            <li class="class class-ART class-OTHER class-4c">Design Workshop</li>
+            <li class="class class-CSC class-2c">User Interface Design</li>
+            <li class="class class-CSC class-4c">Semantic and Declarative Technologies</li>
+            <li class="class class-CSC class-4c">Computer Graphics</li>
+
+            <div class="coursework-semester-divline"></div>
+
+            <li class="class class-CSC class-4c">Automata, Formal Language, &amp; Computational Complexity</li>
+            <li class="class class-SPN class-4c">The Art of Language</li>
+            <li class="class class-CSC class-2c">Computer and Network Security</li>
+            <li class="class class-LIN class-4c">Linguistic Typology</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Banjo</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Piano</li>
+            <li class="class class-MUS class-OTHER class-1c">Beginner Guitar</li>
+          </ul>   
+        </div>
+
+
+
+        <div class="coursework-list-year">
+          <h4>Fouth Year (in progress)</h4>
+          <ul>
+            <li class="class class-CSC class-4c">Computer Architecture</li>
+            <li class="class class-CSC class-4c">Analysis of Algorithms</li>
+            <li class="class class-LIN class-4c">Indo-European Language &amp; Culture</li>
+            <li class="class class-SPN class-4c">Culture of Spanish Speaking World</li>
+            <li class="class class-MUS class-2c">Advanced Banjo</li>
+            <li class="class class-MUS class-1c">Beginner Piano</li>
+          </ul>
+        </div>
+
       </div>
-    </p> 
+
+    </div> 
   </div>
 
 </section>
