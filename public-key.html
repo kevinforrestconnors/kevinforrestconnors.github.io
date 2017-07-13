@@ -1,5 +1,11 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+
+<title>k.f.c - pgp</title>
+
 <a href="index.html"><- back to homepage</a>
-<p>
+
+<p id="pgp-key" style="font-family: monospace; width: 80%; margin: 0 auto" onclick="selectText('pgp-key')">
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 Comment: GPGTools - https://gpgtools.org
 
@@ -66,3 +72,21 @@ AMXqewMQ0G5DEEfvTOnhrg==
 =Fguw
 -----END PGP PUBLIC KEY BLOCK-----
 </p>
+
+
+
+<!-- shamelessly ripped from https://stackoverflow.com/questions/1173194/select-all-div-text-with-single-mouse-click -->
+<script type="text/javascript">
+    function selectText(containerid) {
+        if (document.selection) {
+            var range = document.body.createTextRange();
+            range.moveToElementText(document.getElementById(containerid));
+            range.select();
+        } else if (window.getSelection) {
+            var range = document.createRange();
+            range.selectNode(document.getElementById(containerid));
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+        }
+    }
+</script>
