@@ -1,0 +1,13 @@
+IDEA DUMP
+
+* "steal" ideas from other sites
+** this one seems pretty good! http://www.chessgames.com/perl/fischerandom
+** this one too! http://www.chessvariants.com/diffsetup.dir/fischerh.html
+
+* norepeat (uses localstorage)
+** shows X/960
+** allows retrieval of date used + notepad
+** allow well-formatted date + note download and upload ("download and upload bc localstorage")
+
+* make it online so that u can add these features:
+** every setup is in theory "balanced", however not every setup is in theory "fun".  allow people to rank layouts e.g 5/960 5/5 (riveting setup), 127/960 1/5 (boring setup)
