@@ -325,8 +325,8 @@ var mapCodes = {
 	},
 	"5": {
 		name: "Warp Pocket",
-		spriteX: "?",
-		spriteY: "?",
+		spriteX: 4,
+		spriteY: 3,
 		blocking: false,
 		eraseable: false,
 	},
@@ -334,7 +334,11 @@ var mapCodes = {
 
 	},
 	"7": {
-
+		name: "Starblock",
+		spriteX: 4,
+		spriteY: 5,
+		blocking: false,
+		eraseable: false
 	},
 	"8": {
 
@@ -354,10 +358,18 @@ var mapCodes = {
 		eraseable: true,
 	},
 	"!": {
-
+		name: "Left Wall",
+		spriteX: 1,
+		spriteY: 1,
+		blocking: true,
+		eraseable: false
 	},
 	"@": {
-
+		name: "Left Wall",
+		spriteX: 1,
+		spriteY: 1,
+		blocking: true,
+		eraseable: false
 	},
 	"#": {
 
@@ -381,7 +393,12 @@ var game = {
 	levelState: [],
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
-		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav')
+		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav'),
+		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
+		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
+		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
+		gByeGreen: new Audio("assets/sound/211_G'bye_Greenwall.wav"),
+		gByeBlock: new Audio("assets/sound/214_G'bye_Block.wav")
 	},
 	player: {
 		pos: {
@@ -480,8 +497,25 @@ function playerMagicForward() {
 	console.log("playerMagicForward()")
 
 	var tile = game.player.direction == "left" ? getTileLeft() : getTileRight();
+
 	if (!tile.blocking || tile.eraseable) {
 		game.player.state = "magicForward";
+
+		switch (tile.name) {
+			case "Empty Space":
+				game.audio.magicBlue.play();
+				break;
+			case "Eraseable Star-wall":
+			case "Blue Magic":
+				game.audio.gByeBlock.play();
+				break;
+			case "Green Magic":
+				game.audio.gByeGreen.play();
+				break;
+		}
+
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function playerCrouchMagic() {
@@ -492,12 +526,31 @@ function playerCrouchMagic() {
 		game.player.animationStep = 0;
 		game.player.animationOffset = 0;
 		game.player.state = "crouchMagic";
+		
+		switch (tile.name) {
+			case "Empty Space":
+				game.audio.magicBlue.play();
+				break;
+			case "Eraseable Star-wall":
+			case "Blue Magic":
+				game.audio.gByeBlock.play();
+				break;
+			case "Green Magic":
+				game.audio.gByeGreen.play();
+				break;
+		}
+
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
 	if (!getTileAbove().blocking && getTileBelow().name != "Green Magic") {// && getTileBelow().name != "Blue Magic") {
 		game.player.state = "magicUp";
+		game.audio.magicGreen.play();
+	} else {
+		game.audio.magicDud.play();
 	}
 }
 function getCurrentTile() {
@@ -596,7 +649,7 @@ window.addEventListener("keydown", function(e) {
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
 
-				if (game.keysDown.W && !getTileAbove().blocking) {
+				if (game.keysDown.W) {
 					playerMagicUp()
 				} else {
 					playerMagicForward();
