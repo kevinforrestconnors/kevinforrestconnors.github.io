@@ -66,8 +66,11 @@ function updatePlayer(delta) {
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
 			deathByWarp();
+		} else if (getTileBelow().name == "Hot Coals") {
+			deathByCoals();
 		}
 
+		// Check if player has stepped on a Fallwall
 		if (getTileBelow().name == "Fallwall" && game.player.state != "falling") {
 
 			var pX = game.player.pos.x;
@@ -98,9 +101,9 @@ function updatePlayer(delta) {
 		while (i--) {
 
 			game.fallWalls[i].animationStep++;
-			drawTile(3, Math.floor(game.fallWalls[i].animationStep / 7), 7, game.fallWalls[i].posX, game.fallWalls[i].posY);
+			drawTile(3, Math.floor(game.fallWalls[i].animationStep / 8), 7, game.fallWalls[i].posX, game.fallWalls[i].posY);
 
-			if (game.fallWalls[i].animationStep >= 60) {
+			if (game.fallWalls[i].animationStep >= 80) {
 			 	game.levelState[game.fallWalls[i].posY][game.fallWalls[i].posX] = "0";
 			 	drawTile(1, 10, 11, game.fallWalls[i].posX, game.fallWalls[i].posY);
 				game.fallWalls.splice(i, 1);
@@ -116,15 +119,15 @@ function updatePlayer(delta) {
 				playerStand();
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				playerFall();
-				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall")) {
+					playerFall();	
+					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				} else { // We are inside a wall
+					drawHero(5, 2, game.player.pos.x, game.player.pos.y); 
+				}	
 			}
 
 		} else if (game.player.state == "falling") {
-
-			if (getCurrentTile().blocking) {
-				console.error("This shouldn't happen!")
-			}
 
 			 /* Can change direction mid-air */
 			 if (game.keysDown.A) {
@@ -189,6 +192,10 @@ function updatePlayer(delta) {
 					playerStand();
 				} else {
 					playerFall();
+				}
+
+				if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
+					playerStand();
 				}
 				
 			}
@@ -384,7 +391,12 @@ var mapCodes = {
 		eraseable: true,
 	},
 	"6": {
-
+		name: "Hot Coals",
+		spriteX: 0,
+		spriteY: 6,
+		tileNum: 1,
+		blocking: true,
+		eraseable: false,
 	},
 	"7": {
 		name: "Starblock",
@@ -421,22 +433,34 @@ var mapCodes = {
 	"!": {
 		name: "Left Wall",
 		spriteX: 1,
-		spriteY: 1,
+		spriteY: 10,
+		tileNum: 1,
 		blocking: true,
 		eraseable: false
 	},
 	"@": {
-		name: "Left Wall",
-		spriteX: 1,
-		spriteY: 1,
+		name: "Right Wall",
+		spriteX: 0,
+		spriteY: 0,
+		tileNum: 2,
 		blocking: true,
 		eraseable: false
 	},
 	"#": {
-
+		"name": "Elevator",
+		spriteX: 0,
+		spriteY: 2,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false
 	}, 
 	"$": {
-
+		name: "Tunnel",
+		spriteX: 0,
+		spriteY: 4,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false,
 	},
 	"(": {
 
@@ -455,6 +479,7 @@ var game = {
 	audio: {
 		beginLevel: new Audio('assets/sound/108_Begin_Playing.wav'),
 		deathByFalling: new Audio('assets/sound/110_Death_by_Falling.wav'),
+		deathByCoals: new Audio('assets/sound/206_Death_by_Coals.wav'),
 		magicBlue: new Audio('assets/sound/207_Magic_Blue.wav'),
 		magicDud: new Audio('assets/sound/208_Magic_Dud.wav'),
 		magicGreen: new Audio('assets/sound/209_Magic_Green.wav'),
@@ -488,26 +513,48 @@ var game = {
 	}
 	*/
 }
-
+function returnToStart() { // only called after deaths
+		GLOBALS.gameRunning = true;
+		game.player.pos = drawMap(levels[game.level]);
+		game.player.state = "standing";
+		main(0);
+}
 function deathByFalling() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
-	game.audio.deathByFalling.play();
-	setTimeout(function() {
-		GLOBALS.gameRunning = true;
-		startLevel();
+	game.audio.deathByFalling.play(); 
+	GLOBALS.returnToStart = setTimeout(function() {
+		returnToStart();
 	}, 1300)
 }
 function deathByWarp() {
 	game.player.state = "dead";
 	GLOBALS.gameRunning = false;
 	game.audio.warp.play();
-	setTimeout(function() {
-		GLOBALS.gameRunning = true;
-		startLevel();
+	GLOBALS.returnToStart = setTimeout(function() {
+		returnToStart();
 	}, 1300)
 }
+function deathByCoals() {
+	game.player.state = "dead";
+	GLOBALS.gameRunning = false;
+	game.audio.deathByCoals.play();
 
+	drawHero(3, 4, game.player.pos.x, game.player.pos.y);
+
+	var i = 0;
+	GLOBALS.animateDeath = setInterval(function() {
+		drawMap(game.levelState)
+		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
+		i++;
+	}, 150);
+
+	GLOBALS.returnToStart = setTimeout(function() {
+		clearInterval(GLOBALS.animateDeath);
+		returnToStart();
+	}, 2100);
+
+}
 function cloneArrayOfArrays (existingArray) {
    var newObj = (existingArray instanceof Array) ? [] : {};
    for (i in existingArray) {
@@ -523,15 +570,16 @@ function cloneArrayOfArrays (existingArray) {
 
 function startLevel() {
 
-	if (GLOBALS.gameRunning) {
-		game.audio.beginLevel.pause();
-		game.audio.beginLevel.currentTime = 0; // In case they beat the level really fast e.g. level 1
-		game.audio.beginLevel.play();
-		game.player.pos = drawMap(levels[game.level]);
-		game.levelState = cloneArrayOfArrays(levels[game.level]);
-		game.player.state = "standing";
-		main(0);
-	}
+	clearInterval(GLOBALS.animateDeath);
+	clearTimeout(GLOBALS.returnToStart);
+	GLOBALS.gameRunning = true;
+	game.audio.beginLevel.pause();
+	game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
+	game.audio.beginLevel.play();
+	game.player.pos = drawMap(levels[game.level]);
+	game.levelState = cloneArrayOfArrays(levels[game.level]);
+	game.player.state = "standing";
+	main(0);
 }
 function playerFall() {
 	console.log("playerFall()")
@@ -547,7 +595,7 @@ function playerTurn() {
 	if (game.player.state == "standing") {
 		if (game.player.direction == "left") {
 			if (game.keysDown.A) {
-				if (!getTileLeft().blocking) {
+				if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -558,7 +606,7 @@ function playerTurn() {
 			}
  		} else {
  			if (game.keysDown.D) {
-				if (!getTileRight().blocking) {
+				if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 					game.player.state = "walking";
 				} else {
 					game.player.state = "standing"
@@ -573,11 +621,13 @@ function playerTurn() {
 function playerWalk() {
 
 	if (game.player.direction == "left")  {
-		if (!getTileLeft().blocking) {
+
+		if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 			game.player.state = "walking";
 		}
 	} else {
-		if (!getTileRight().blocking) {
+
+		if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 			game.player.state = "walking";
 		}
 	}
@@ -755,6 +805,7 @@ window.addEventListener("keydown", function(e) {
 
 	switch(e.keyCode) {
 		case 32: // Spacebar
+		case 13: // Enter
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
 
@@ -797,6 +848,7 @@ window.addEventListener("keydown", function(e) {
 			game.keysDown.W = true;
 			break;
 		case 82: // R (restart the level)
+		case 88: // X
 			startLevel();
 			break;
 	}
