@@ -26,12 +26,14 @@ var GLOBALS = {
 	main: new Image(),
 	about: new Image(),
 	instructions: new Image(),
+	victory: new Image(),
 
 	imagesLoaded: false,
 
 	mainShowing: true,
 	aboutShowing: false,
 	instructionsShowing: false,
+	victoryShowing: false,
 }
 
 function updatePlayer(delta) {
@@ -48,7 +50,7 @@ function updatePlayer(delta) {
 					playerMagicRight();
 				}
 
-			} else if (game.player.state == "crouching" && game.player.animationStep > 10) {
+			} else if (game.player.state == "crouching" && game.anims.animationStep > 10) {
 
 				if (game.player.direction == "left") {
 					playerCrouchMagicLeft();
@@ -69,14 +71,45 @@ function updatePlayer(delta) {
 			}
 		}
 
+		if (getCurrentTile().name == "Victory Square") {
+			GLOBALS.gameRunning = false;
+
+			var xOffset = 0;
+			var yOffset = 0;
+
+			GLOBALS.animateVictory = setInterval(function() {
+				drawTile(1, 11 + xOffset, yOffset, game.player.pos.x - 1, game.player.pos.y);
+				drawTile(1, 12 + xOffset, yOffset, game.player.pos.x, game.player.pos.y);
+
+				yOffset++;
+
+				if (yOffset > 11) {
+					yOffset = 0;
+					xOffset += 2;
+					if (xOffset == 4) {
+						clearInterval(GLOBALS.animateVictory);
+						ctx.drawImage(GLOBALS.victory, 0, 0);
+						GLOBALS.victoryShowing = true;
+					}
+				}
+			}, 100);
+		}
+
 		if (getCurrentTile().name == "Exit Portal" && getTileBelow().blocking) {
 			game.level++;
-			localStorage.setItem('level', game.level);
+			if (localStorage.getItem('level') < game.level) {
+				localStorage.setItem('level', game.level);	
+			}
+			if (game.level == 26) {
+				game.player.gender = 1;
+			}
 			startLevel();
 		} else if (getCurrentTile().name == "Warp Pocket") {
 			game.player.pos.y = GLOBALS.gameHeight + 1; // place player outside of map
 			deathByWarp();
-		} else if (getTileBelow().name == "Hot Coals") {
+		}
+
+		if (getTileBelow().name == "Hot Coals") {
 			deathByCoals();
 		}
 
@@ -105,7 +138,24 @@ function updatePlayer(delta) {
 			}
 		}
 
-		// Update all Fallwalls
+		// Animate Fallwalls
+		var fallWallSprite = mapCodes["8"];
+		game.anims.fallWallAnimationStep++;
+
+		if (game.anims.fallWallAnimationStep % 4 == 0) {			
+			fallWallSprite.spriteX++;
+			if (fallWallSprite.spriteX == 10) {
+				fallWallSprite.spriteX = 0;
+				fallWallSprite.spriteY++;
+			}
+
+			if (fallWallSprite.spriteY == 10) {
+				fallWallSprite.spriteY = 8;
+			}
+		}
+
+
+		// Update all falling Fallwalls
 
 		var i = game.fallWalls.length;
 		while (i--) {
@@ -120,6 +170,8 @@ function updatePlayer(delta) {
 			}
 
 		}
+
+
 			
 		if (game.player.state == "dead") {
 			// Do Nothing
@@ -129,14 +181,51 @@ function updatePlayer(delta) {
 				playerStand();
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 			} else {
-				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall")) {
+				if (!(getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall" || getCurrentTile().name == "Tunnel" || getTileBelow().name == "Elevator")) {
 					playerFall();	
-					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+					drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
 				} else { // We are inside a wall
 					drawHero(5, 2, game.player.pos.x, game.player.pos.y); 
 				}	
 			}
 
+		} else if (game.player.state == "rising") {
+
+			/* Can change direction mid-air */
+			 if (game.keysDown.A) {
+			 	game.player.direction = "left";
+			 } else if (game.keysDown.D) {
+			 	game.player.direction = "right";
+			 }
+			
+			game.anims.animationStep++;
+
+			game.anims.animationOffset = game.anims.animationStep / 20;
+
+			drawHero(1, 3, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+
+			// Gone up a square; switch based on where we are
+			if (game.anims.animationStep == GLOBALS.fallDuration) {
+
+				game.anims.animationStep = 0;
+				game.anims.animationOffset = 0;
+
+				game.player.pos.y--;
+
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+				
+				if (getCurrentTile().name == "Elevator") {
+					
+					if (getTileAbove().blocking) {
+						game.levelState[game.player.pos.y][game.player.pos.x] = "0";
+						playerStand();
+					} else {
+						playerRise();	
+					}
+				} else {
+					playerStand();
+				}
+			}
 		} else if (game.player.state == "falling") {
 
 			 /* Can change direction mid-air */
@@ -146,21 +235,42 @@ function updatePlayer(delta) {
 			 	game.player.direction = "right";
 			 }
 			
-			game.player.animationStep++;
+			game.anims.animationStep++;
 
-			game.player.animationOffset = game.player.animationStep / 20;
+			game.anims.animationOffset = game.anims.animationStep / 20;
 
-			drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+			drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
 
 			// Gone down a square; switch based on where we are
-			if (game.player.animationStep == GLOBALS.fallDuration) {
+			if (game.anims.animationStep == GLOBALS.fallDuration) {
 
-				game.player.animationStep = 0;
-				game.player.animationOffset = 0;
+				game.anims.animationStep = 0;
+				game.anims.animationOffset = 0;
+
 				game.player.pos.y++;
 
-				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.player.animationOffset);
+				drawHero(1, 3, game.player.pos.x, game.player.pos.y + game.anims.animationOffset);
 				
+				if (getCurrentTile().name == "Teleporter") {
+
+					var pX = game.player.pos.x;
+					var pY = game.player.pos.y;
+
+					var nextY = pY + 1;
+
+					while (game.levelState[nextY][pX] != "%") {
+						nextY++;
+						if (nextY >= 12) {
+							nextY = 0;
+						}
+					}
+
+					game.player.pos.y = nextY;
+					playerStand();
+					return;
+						
+				}
+
 				if (game.player.pos.y > GLOBALS.gameHeight) {
 					deathByFalling();
 				} else if (getTileBelow().blocking) {
@@ -172,11 +282,11 @@ function updatePlayer(delta) {
 
 		} else if (game.player.state == "prepareWalk") {
 
-			game.player.animationStep++;
+			game.anims.animationStep++;
 
 			drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
-			if (game.player.animationStep > 5) {
+			if (game.anims.animationStep > 5) {
 				playerStand();
 				playerWalk();	
 			} 
@@ -185,38 +295,53 @@ function updatePlayer(delta) {
 
 			var direction = game.player.direction == "left" ? -1 : 1
 
-			game.player.animationStep++;
+			game.anims.animationStep++;
 
-			game.player.animationOffset = game.player.animationStep / GLOBALS.walkDuration;
+			game.anims.animationOffset = game.anims.animationStep / GLOBALS.walkDuration;
 
-			drawHero(5 + game.player.animationStep % 3, 2, game.player.pos.x + (direction * game.player.animationOffset), game.player.pos.y);
+			drawHero(5 + game.anims.animationStep % 3, 2, game.player.pos.x + (direction * game.anims.animationOffset), game.player.pos.y);
 
-			if (game.player.animationStep == GLOBALS.walkDuration) {
-				game.player.animationStep = 0;
-				game.player.animationOffset = 0;
+			if (game.anims.animationStep == GLOBALS.walkDuration) {
+				game.anims.animationStep = 0;
+				game.anims.animationOffset = 0;
 				game.player.pos.x += direction;
 
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 
-				if (getTileBelow().blocking) {
+				if (getTileBelow().blocking || getCurrentTile().name == "Tunnel" || getTileBelow().name == "Elevator") {
 					playerStand();
 				} else {
 					playerFall();
 				}
 
-				if (getCurrentTile().name == "Left Wall" || getCurrentTile().name == "Right Wall") {
-					playerStand();
-				}
-				
-			}
+				if (getCurrentTile().name == "Elevator") {
+					playerRise();
+				} else if (getCurrentTile().name == "Teleporter") {
 
+					var pX = game.player.pos.x;
+					var pY = game.player.pos.y;
+
+					var nextY = pY + 1;
+
+					while (game.levelState[nextY][pX] != "%") {
+						nextY++;
+						if (nextY >= 12) {
+							nextY = 0;
+						}
+					}
+
+					game.player.pos.y = nextY;
+					playerStand();
+						
+				}
+			}
 		} else if (game.player.state == "crouching") {
 
-			game.player.animationStep++;
+			game.anims.animationStep++;
 
-			if (game.player.animationStep >= 1 && game.player.animationStep <= 5) { // Player has just entered crouch
+			if (game.anims.animationStep >= 1 && game.anims.animationStep <= 5) { // Player has just entered crouch
 				drawHero(8, 2, game.player.pos.x, game.player.pos.y);
-			} else if (game.player.animationStep >= 6 && game.player.animationStep <= 10) {
+			} else if (game.anims.animationStep >= 6 && game.anims.animationStep <= 10) {
 				drawHero(9, 2, game.player.pos.x, game.player.pos.y);
 			} else {
 				drawHero(10, 2, game.player.pos.x, game.player.pos.y);
@@ -229,14 +354,26 @@ function updatePlayer(delta) {
 
 			if (tile.eraseable) {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
+				game.anims.animationStep++;
+				game.anims.animationOffset = game.anims.animationStep / 20;
 
-				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
+				switch (tile.name) {
+					case "Blue Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+						break;
+					case "Eraseable Star-wall":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y);
+						break;
+					case "Green Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+						break;
+				}
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
-					game.player.animationStep = 0;
-					game.player.animationOffset = 0;
+				drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
+
+				if (game.anims.animationStep == GLOBALS.magicDuration) {
+					game.anims.animationStep = 0;
+					game.anims.animationOffset = 0;
 
 					drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y][game.player.pos.x + direction] = "0";
@@ -246,18 +383,18 @@ function updatePlayer(delta) {
 
 			} else {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
+				game.anims.animationStep++;
+				game.anims.animationOffset = game.anims.animationStep / 20;
 				
-				drawTile(3, 10 - Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y);
-				drawHero(3 + Math.floor(game.player.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y);
+				drawHero(3 + Math.floor(game.anims.animationStep / 10), 3, game.player.pos.x, game.player.pos.y);
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
-					game.player.animationStep = 0;
-					game.player.animationOffset = 0;
+				if (game.anims.animationStep == GLOBALS.magicDuration) {
+					game.anims.animationStep = 0;
+					game.anims.animationOffset = 0;
 
 					drawHero(0, 0, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y][game.player.pos.x + direction] = "B";
+					game.levelState[game.player.pos.y][game.player.pos.x + direction] = game.player.gender ? "P" : "B";
 					playerStand();
 					
 				}		
@@ -268,50 +405,113 @@ function updatePlayer(delta) {
 			var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
 			var direction = game.player.direction == "left" ? -1 : 1
 
+			if (getTileBelow().name == "Green Magic") {
+				tile = getTileBelow();
+				direction = 0;
+			}
+
 			if (tile.eraseable) {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
- 				
-				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
+				switch (tile.name) {
+					case "Blue Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+					case "Eraseable Star-wall":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 9, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+					case "Green Magic":
+						drawTile(3, Math.floor(game.anims.animationStep / 9), 10 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+						break;
+				}
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
+				game.anims.animationStep++;
+				game.anims.animationOffset = game.anims.animationStep / 20;
+ 				
+				drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
+
+				if (game.anims.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
 					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "0";
-					playerCrouch();		
+					playerCrouch(); 
+
+					if (tile.name == "Green Magic" && direction == 0) {
+						playerStand();
+						playerFall();			
+					}
 
 				}
 
 			} else {
 
-				game.player.animationStep++;
-				game.player.animationOffset = game.player.animationStep / 20;
+				game.anims.animationStep++;
+				game.anims.animationOffset = game.anims.animationStep / 20;
 				
-				drawTile(3, 10 - Math.floor(game.player.animationStep / 4), 4, game.player.pos.x + direction, game.player.pos.y + 1);
-				drawHero(7 + Math.floor(game.player.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
+				drawTile(3, 10 - Math.floor(game.anims.animationStep / 4), 4 + game.player.gender, game.player.pos.x + direction, game.player.pos.y + 1);
+				drawHero(7 + Math.floor(game.anims.animationStep / 11), 3, game.player.pos.x, game.player.pos.y);
 
-				if (game.player.animationStep == GLOBALS.magicDuration) {
+				if (game.anims.animationStep == GLOBALS.magicDuration) {
 
 					drawHero(10, 3, game.player.pos.x, game.player.pos.y);
-					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "B";
+					game.levelState[game.player.pos.y + 1][game.player.pos.x + direction] = "P";
 					playerCrouch();
 					
 				}		
 			}
 
+		} else if (game.player.state == "lookingUp") {
+
+			if (game.keysDown.A) {
+				game.player.direction = "left";
+			} else if (game.keysDown.D) {
+			 	game.player.direction = "right";
+			}
+
+			drawHero(2, 3, game.player.pos.x, game.player.pos.y);
+
 		} else if (game.player.state == "magicUp") {
 
-			game.player.animationStep++;
-			game.player.animationOffset = game.player.animationStep / 40;
+			game.anims.animationStep++;
+			game.anims.animationOffset = game.anims.animationStep / 40;
 
-			ctx.drawImage(GLOBALS.tiles3, 0, 400, 40, game.player.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.player.animationOffset) * 40, 40, game.player.animationStep);
-			drawHero(11 + Math.floor(game.player.animationStep / 9), 3, game.player.pos.x, game.player.pos.y - game.player.animationOffset);
+			ctx.drawImage(GLOBALS.tiles3, 0, (10 + game.player.gender) * 40, 40, game.anims.animationStep, game.player.pos.x * 40, (game.player.pos.y + 1 - game.anims.animationOffset) * 40, 40, game.anims.animationStep);
+			
+				if (game.player.direction == "right") {
+					drawTile(1, 10, 9 - (2 * game.player.gender), game.player.pos.x, game.player.pos.y - 1 - game.anims.animationOffset);
+					drawTile(1, 10, 10 - (2 * game.player.gender), game.player.pos.x, game.player.pos.y - game.anims.animationOffset);
+				} else {
 
-			if (game.player.animationStep == GLOBALS.magicDuration) {
+					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - 1 - game.anims.animationOffset) * 40);
+					ctx.scale(-1, 1);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, (9 - (2 * game.player.gender)) * 40, 40, 40, 0, 0, 40, 40);
+					ctx.setTransform(1, 0, 0, 1, 0, 0)
 
-				game.levelState[game.player.pos.y][game.player.pos.x] = "G";
+
+					ctx.translate((game.player.pos.x * 40)+40, (game.player.pos.y - game.anims.animationOffset) * 40);
+					ctx.scale(-1, 1);
+					ctx.drawImage(GLOBALS.tiles1, 10 * 40, (10 - (2 * game.player.gender)) * 40, 40, 40, 0, 0, 40, 40);
+					ctx.setTransform(1, 0, 0, 1, 0, 0)
+				}
+
+			if (game.anims.animationStep == GLOBALS.magicDuration) {
+
+				game.levelState[game.player.pos.y][game.player.pos.x] = game.player.gender ? "R" : "G";
 				game.player.pos.y--;
+				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
+				playerStand();
+				
+			}		
+		} else if (game.player.state == "magicUpErase") {
+
+			game.anims.animationStep++;
+			game.anims.animationOffset = game.anims.animationStep / 40;
+
+			drawTile(3, Math.floor(game.anims.animationStep / 9), 10, game.player.pos.x, game.player.pos.y - 1);
+			drawHero(11 + Math.floor(game.anims.animationStep / 9), 3, game.player.pos.x, game.player.pos.y);
+
+			if (game.anims.animationStep == GLOBALS.magicDuration) {
+
+				game.levelState[game.player.pos.y - 1][game.player.pos.x] = "0";
 				drawHero(5, 2, game.player.pos.x, game.player.pos.y);
 				playerStand();
 				
@@ -362,9 +562,9 @@ var mapCodes = {
 	},
 	"1": {
 		name: "Eraseable Star-wall",
-		spriteX: 2,
-		spriteY: 1,
-		tileNum: 1,
+		spriteX: 0,
+		spriteY: 9,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true,
 	},
@@ -419,16 +619,24 @@ var mapCodes = {
 	"8": {
 		name: "Fallwall",
 		spriteX: 0,
-		spriteY: 7,
-		tileNum: 3,
+		spriteY: 8,
+		tileNum: 1,
 		blocking: true,
 		eraseable: false,
 	},
 	"B": {
 		name: "Blue Magic",
 		spriteX: 0,
-		spriteY: 8,
-		tileNum: 2,
+		spriteY: 4,
+		tileNum: 3,
+		blocking: true,
+		eraseable: true
+	},
+	"P": {
+		name: "Blue Magic",
+		spriteX: 0,
+		spriteY: 5,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true
 	},
@@ -436,9 +644,17 @@ var mapCodes = {
 		name: "Green Magic",
 		spriteX: 0,
 		spriteY: 10,
-		tileNum: 2,
+		tileNum: 3,
 		blocking: true,
 		eraseable: true,
+	},
+	"R": {
+		name: "Green Magic",
+		spriteX: 0,
+		spriteY: 11,
+		tileNum: 3,
+		blocking: true,
+		eraseable: true
 	},
 	"!": {
 		name: "Left Wall",
@@ -473,13 +689,60 @@ var mapCodes = {
 		eraseable: false,
 	},
 	"(": {
-
+		name: "Woman",
+		spriteX: 10,
+		spriteY: 3,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	},
 	")": {
-
+		name: "Man",
+		spriteX: 10,
+		spriteY: 4,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
+	"/": {
+		name: "Fake Entrance Portal",
+		spriteX: 10,
+		spriteY: 0,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	},
 	"%": {
-
+		name: "Teleporter",
+		spriteX: 0,
+		spriteY: 6,
+		tileNum: 2,
+		blocking: false,
+		eraseable: false
+	},
+	"^": {
+		name: "Copyleft",
+		spriteX: 10,
+		spriteY: 5,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
+	"&": {
+		name: "Copyright",
+		spriteX: 10,
+		spriteY: 6,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
+	},
+	"V": {
+		name: "Victory Square",
+		spriteX: 10,
+		spriteY: 11,
+		tileNum: 1,
+		blocking: false,
+		eraseable: false
 	}
 }
 
@@ -504,9 +767,12 @@ var game = {
 		},
 		direction: "right",
 		state: "standing",
+		
+	},
+	anims: {
 		animationStep: 0,
 		animationOffset: 0,
-		fallWallAnimationStep: 0,
+		fallWallAnimationStep: 0
 	},
 	keysDown: {
 		Space: false,
@@ -557,6 +823,10 @@ function deathByCoals() {
 		drawMap(game.levelState)
 		drawHero(3 + i, 4, game.player.pos.x, game.player.pos.y);
 		i++;
+		if (i == 7) {
+			clearInterval(GLOBALS.animateDeath);
+			drawTile(1, 10, 11, game.player.pos.x, game.player.pos.y);
+		}
 	}, 150);
 
 	GLOBALS.returnToStart = setTimeout(function() {
@@ -585,6 +855,9 @@ function startLevel() {
 	game.audio.beginLevel.pause();
 	game.audio.beginLevel.currentTime = 0; // In case they jam the reset button
 	game.audio.beginLevel.play();
+	if (game.level >= 26) {
+		game.player.gender = 1;
+	}
 	game.player.pos = drawMap(levels[game.level]); 
 	game.levelState = cloneArrayOfArrays(levels[game.level]);
 	game.player.state = "standing";
@@ -593,14 +866,23 @@ function startLevel() {
 		GLOBALS.gameRunning = true;
 	}, 200);
 }
+function playerRise() {
+	console.log("playerRise()");
+	if (getTileAbove().blocking) {
+		game.levelState[game.player.pos.y][game.player.pos.x] = "0";
+		playerStand();
+	} else {
+		game.player.state = "rising";	
+	}
+}
 function playerFall() {
-	console.log("playerFall()")
+	console.log("playerFall()");
 	game.player.state = "falling";
 }
 function playerStand() {
 	game.player.state = "standing";
-	game.player.animationStep = 0;
-	game.player.animationOffset = 0;
+	game.anims.animationStep = 0;
+	game.anims.animationOffset = 0;
 }
 function playerTurn() {
 
@@ -610,22 +892,22 @@ function playerTurn() {
 				if ((!getTileLeft().blocking && !(getTileLeft().name == "Warp Pocket")) || getTileLeft().name == "Left Wall") {
 					game.player.state = "walking";
 				} else {
-					game.player.state = "standing"
+					game.player.state = "standing";
 				}
 			} else {
-				game.player.direction = "right"
-				game.player.state = "prepareWalk"
+				game.player.direction = "right";
+				game.player.state = "prepareWalk";
 			}
  		} else {
  			if (game.keysDown.D) {
 				if ((!getTileRight().blocking && !(getTileRight().name == "Warp Pocket")) || getTileRight().name == "Right Wall") {
 					game.player.state = "walking";
 				} else {
-					game.player.state = "standing"
+					game.player.state = "standing";
 				}
 			} else {
-				game.player.direction = "left"
-				game.player.state = "prepareWalk"
+				game.player.direction = "left";
+				game.player.state = "prepareWalk";
 			}	
  		}
 	}	
@@ -646,7 +928,15 @@ function playerWalk() {
 }
 function playerCrouch() {
 	console.log("playerCrouch()");
-	game.player.state = "crouching"
+	game.player.state = "crouching";
+}
+function playerLookUp() {
+	console.log("playerLookUp()");
+	if (getTileAbove().name == "Elevator") {
+		game.player.state = "rising";
+	} else {
+		game.player.state = "lookingUp";
+	}
 }
 function playerMagicForward() {
 	console.log("playerMagicForward()")
@@ -677,10 +967,15 @@ function playerCrouchMagic() {
 
 	var tile = game.player.direction == "left" ? getTileBottomLeft() : getTileBottomRight();
 
-	if (tile.eraseable || tile.name == "Empty Space") {
-		game.player.animationStep = 0;
-		game.player.animationOffset = 0;
+	if (getTileBelow().name == "Green Magic") {
+		game.anims.animationStep = 0;
+		game.anims.animationOffset = 0;
 		game.player.state = "crouchMagic";
+		game.audio.gByeGreen.play();
+		return;
+	}
+
+	if (tile.eraseable || tile.name == "Empty Space") {
 		
 		switch (tile.name) {
 			case "Empty Space":
@@ -693,7 +988,14 @@ function playerCrouchMagic() {
 			case "Green Magic":
 				game.audio.gByeGreen.play();
 				break;
+			case "Warp Pocket":
+				game.audio.magicDud.play();
+				return;
 		}
+
+		game.anims.animationStep = 0;
+		game.anims.animationOffset = 0;
+		game.player.state = "crouchMagic";
 
 	} else {
 		game.audio.magicDud.play();
@@ -701,9 +1003,18 @@ function playerCrouchMagic() {
 }
 function playerMagicUp() {
 	console.log("playerMagicUp()");
+
+	if (getTileAbove().name == "Green Magic") {
+		game.player.state = "magicUpErase";
+		game.audio.gByeGreen.play();
+		return;
+	}
+
 	if (!getTileAbove().blocking && 
 		getTileBelow().name != "Green Magic" && 
 		getTileAbove().name != "Warp Pocket" &&
+		getTileAbove().name != "Exit Portal" &&
+		getTileAbove().name != "Entrance Portal" &&
 		getCurrentTile().name == "Empty Space") {
 		game.player.state = "magicUp";
 		game.audio.magicGreen.play();
@@ -751,6 +1062,20 @@ function drawTile(tn, tileX, tileY, desX, desY, sX, sY) {
 function drawHero(tileX, tileY, desX, desY, sX, sY) {
 	if (!sX) {sX = 40}
 	if (!sY) {sY = 40}
+
+	if (game.player.gender == 1) {
+
+		var genderAdjustment = 37;
+		while (genderAdjustment--) {
+			tileX--;
+			if (tileX < 0) {
+				tileY--;
+				tileX = 15;
+			}
+		}
+
+	}
+
 	if (game.player.direction == "right") {
 		ctx.drawImage(GLOBALS.players, tileX * sX, tileY * sY, sX, sY, desX * sX, desY * sY, sX, sY);
 	} else {
@@ -791,21 +1116,22 @@ function drawMap(map) {
 	
 // Load Tiles
 
-GLOBALS.tiles1.src = 'assets/img/tiles1.png';
+GLOBALS.main.src = 'assets/img/main.png';
+GLOBALS.main.onload = function() {
 
-GLOBALS.tiles1.onload = function() {
+	ctx.drawImage(GLOBALS.main, 0, 0)
 
-	GLOBALS.tiles2.src = 'assets/img/tiles2.png';
-	GLOBALS.tiles2.onload = function() {
+	GLOBALS.tiles1.src = 'assets/img/tiles1.png';
+	GLOBALS.tiles1.onload = function() {
 
-		GLOBALS.tiles3.src = 'assets/img/tiles3.png';
-		GLOBALS.tiles3.onload = function() {
+		GLOBALS.tiles2.src = 'assets/img/tiles2.png';
+		GLOBALS.tiles2.onload = function() {
+
+			GLOBALS.tiles3.src = 'assets/img/tiles3.png';
+			GLOBALS.tiles3.onload = function() {
 			
-			GLOBALS.players.src = 'assets/img/players.png';
-			GLOBALS.players.onload = function() {
-
-				GLOBALS.main.src = 'assets/img/main.png';
-				GLOBALS.main.onload = function() {
+				GLOBALS.players.src = 'assets/img/players.png';
+				GLOBALS.players.onload = function() {
 
 					GLOBALS.about.src = 'assets/img/about.png';
 					GLOBALS.about.onload = function() {
@@ -813,8 +1139,11 @@ GLOBALS.tiles1.onload = function() {
 						GLOBALS.instructions.src = 'assets/img/instructions.png';
 						GLOBALS.instructions.onload = function() {
 
-							ctx.drawImage(GLOBALS.main, 0, 0)
+							GLOBALS.victory.src = 'assets/img/victory.png';
+							GLOBALS.victory.onload = function() {
 
+								ctx.drawImage(GLOBALS.main, 0, 0)
+							}
 						}
 					}
 				}
@@ -854,6 +1183,8 @@ window.addEventListener("mousemove", function(e) {
 		addPointerCSS();
 	} else if (GLOBALS.instructionsShowing) {
 		addPointerCSS();
+	} else if (GLOBALS.victoryShowing) {
+		addPointerCSS();
 	}
 
 });
@@ -866,8 +1197,11 @@ window.addEventListener("click", function(e) {
 
 	if (GLOBALS.mainShowing) {
 		if (px > 0.33 && px < 0.66 && py > 0.37 && py < 0.46) { // New Game
+			GLOBALS.mainShowing = false;
+			game.level = 50;
 			startLevel();
 		} else if (px > 0.33 && px < 0.66 && py > 0.53 && py < 0.62) { // Load Game
+			GLOBALS.mainShowing = false;
 			var level = localStorage.getItem('level');
 			game.level = level;
 			startLevel();
@@ -876,7 +1210,7 @@ window.addEventListener("click", function(e) {
 			GLOBALS.aboutShowing = true;
 			ctx.drawImage(GLOBALS.about, 0, 0);
 		} else if (px > 0.56 && px < 0.73 && py > 0.70 && py < 0.78) { // Help
-				GLOBALS.mainShowing = false;
+			GLOBALS.mainShowing = false;
 			GLOBALS.instructionsShowing = true;
 			ctx.drawImage(GLOBALS.instructions, 0, 0);
 		} else {
@@ -890,6 +1224,10 @@ window.addEventListener("click", function(e) {
 		GLOBALS.mainShowing = true;
 		GLOBALS.instructionsShowing = false;
 		ctx.drawImage(GLOBALS.main, 0, 0);
+	} else if (GLOBALS.victoryShowing) {
+		GLOBALS.mainShowing = true;
+		GLOBALS.victoryShowing = false;
+		ctx.drawImage(GLOBALS.main, 0, 0);
 	}
 
 	
@@ -897,24 +1235,17 @@ window.addEventListener("click", function(e) {
 
 window.addEventListener("keydown", function(e) {
 
-	// if (GLOBALS.instructionsShowing && GLOBALS.imagesLoaded) {
-	// 	GLOBALS.instructionsShowing = false;
-	// 	startLevel();
-	// 	return;
-	// }
-
 	switch(e.keyCode) {
+		case 27: // ESC
+			GLOBALS.gameRunning = false;
+			GLOBALS.mainShowing = true;
+			ctx.drawImage(GLOBALS.main, 0, 0);
+			break;
 		case 32: // Spacebar
 		case 13: // Enter
 			e.preventDefault(); // prevent spacebar scroll
 			if (game.player.state == "standing") {
-
-				if (game.keysDown.W) {
-					playerMagicUp()
-				} else {
-					playerMagicForward();
-				}
-
+				playerMagicForward();
 			} else if (game.player.state == "crouching") {
 
 				if (game.player.direction == "left") {
@@ -923,6 +1254,8 @@ window.addEventListener("keydown", function(e) {
 					playerCrouchMagic();
 				}
 
+			} else if (game.player.state == "lookingUp") {
+				playerMagicUp();
 			}
 			game.keysDown.space = true;
 			break;
@@ -945,11 +1278,16 @@ window.addEventListener("keydown", function(e) {
 			break;
 		case 38: // Up Arrow
 		case 87: // W
+			if (game.player.state == "standing") {
+				playerLookUp();
+			}
 			game.keysDown.W = true;
 			break;
 		case 82: // R (restart the level)
 		case 88: // X
-			startLevel();
+			if (!(GLOBALS.mainShowing || GLOBALS.instructionsShowing || GLOBALS.aboutShowing || GLOBALS.victoryShowing)) {
+				startLevel();
+			}
 			break;
 	}
 
@@ -984,12 +1322,11 @@ window.addEventListener("keyup", function(e) {
 			break;
 		case 38: // Up Arrow
 		case 87: // W
+			if (game.player.state == "lookingUp") {
+				playerStand();
+			}
 			game.keysDown.W = false;
 			break;
 	}
 
 }, true);
-
-//})();
-
-
