@@ -1,0 +1,101 @@
+<html>
+
+    <head>
+
+        <meta http-equiv="content-type" content="text/html; charset=UTF8">
+
+        <title>Bounceball</title>
+
+        <link rel="icon" href="favicon.ico">
+        <link rel="stylesheet" href="styles.css">
+
+    </head>
+
+    <body>
+
+        <div class="howToPlay">
+
+            <h1>Bounceball</h1>
+
+            <p class="intro">
+                Bounceball is a 2-4 player game that requires gamepads: in other words, controllers like ones used for the XBOX or Playstation.<br><br>
+                It also requires a browser that can interpret the controller input.  Chrome or Firefox is recommended.<br><br>
+                If your controllers are not being detected, try the following:
+            </p>
+
+            <ul>
+                <li>The controllers need drivers to work.  Make sure you've installed the appropriate ones.</li>
+                <li>You must press a button on the controller for them to be detected.</li>
+                <li>Some browsers do not support gamepads.  Try using Firefox!</li>
+                <li>Chrome often gets itself into a weird state and a restart is required.</li>
+            </ul>
+
+            <p class="how">
+                Ok, good, so you've connected controllers.  The game itself is fairly simple.  2-4 players face off in a game to the death, by shooting bullets at each other.
+                Each time you get hit you lose <strong>5%</strong> of your health, unless it hits your shield, in which case it will <strong>bounce</strong> off.  If your player is flashing green, you can unleash a <strong>Big Shot</strong>.
+            </p>
+
+            <p class="controls">
+                The controls may vary by controller, but they should be relatively similar to the following, based on the XBOX 360 Controller:
+            </p>
+
+            <ul>
+                <li><strong>Shoot:</strong> Right Trigger</li>
+                <li><strong>Big Shot:</strong> A __or__ Left Trigger</li>
+                <li><strong>Move:</strong> Left Joystick</li>
+                <li><strong>Aim:</strong> Right Joystick</li>
+                <li><strong>Change Color:</strong> Left Button</li>
+                <li><strong>Stop Moving:</strong> Left Joystick Click</li>
+            </ul>
+
+            <p class="extras">
+                If you want to hide this text, click the red triangle hanging off of the game view.  Hiding this text and resizing the browser will also change the size of the game window.
+            </p>
+
+            <br>
+            <br>
+
+            <div class="links">
+                <a href="http://github.com/kevinforrestconnors/Bounceball">Fork Me on Github</a><br>
+                <a href="http://twitter.com">Follow Me on Twitter</a>
+            </div>
+
+            <p class="error">
+
+            </p>
+
+            <div class="debug">
+
+            </div>
+
+
+        </div>
+
+        <div class="canvasLayers">
+
+            <div class="triangle-left triangle"></div>
+
+            <div class="gameContainer">
+                <canvas id="game"></canvas>
+            </div>
+
+            <div class="guiContainer">
+                <canvas id="gui"></canvas>
+            </div>
+
+        </div>
+
+        <script type="text/javascript" src="jquery.js"></script>
+
+        <script type="text/javascript" src="gameLogic.js"></script>
+        <script type="text/javascript" src="canvas.js"></script>
+
+        <script type="text/javascript" src="binding.js"></script>
+        <script type="text/javascript" src="controllerLogic.js"></script>
+
+        <script type="text/javascript" src="gui.js"></script>
+
+    </body>
+
+</html>
+

@@ -1,0 +1,88 @@
+body {
+    background-color: lightgray;
+}
+
+.links {
+    text-align: center;
+}
+
+.links a {
+    text-decoration: none;
+}
+
+.triangle-left {
+    position: absolute;
+    top: -500px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 40px solid transparent;
+    border-right: 30px solid brown;
+    border-bottom: 40px solid transparent;
+}
+
+.triangle-right {
+    position: absolute;
+    top: 500px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-top: 40px solid transparent;
+    border-left: 30px solid brown;
+    border-bottom: 40px solid transparent;
+}
+
+.triangle-left:hover {
+    border-right: 30px solid sandybrown;
+}
+
+.triangle-right:hover {
+    border-left: 30px solid sandybrown;
+}
+
+.error {
+    color: red;
+}
+
+canvas {
+    border: 10px inset beige;
+}
+
+#game {
+    width: 500px;
+    height: 500px;
+}
+
+#gui {
+    width: 500px;
+    height: 500px;
+    opacity: 0.5;
+}
+
+.gameContainer, .guiContainer {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.gameContainer {
+    z-index: -1;
+}
+
+.guiContainer {
+    z-index: 0;
+}
+
+.howToPlay {
+    float: left;
+    width: 30%;
+    margin: 20px;
+    font-size: 1.7vh;
+    font-family: Baskerville, "Baskerville Old Face", "Hoefler Text", Garamond, "Times New Roman", serif;
+}
+
+.canvasLayers {
+    position: relative;
+    float: left;
+    width: 40%;
+}
